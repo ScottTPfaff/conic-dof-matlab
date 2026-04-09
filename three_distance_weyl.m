@@ -170,5 +170,5 @@ legend({'short gap','long gap','\phi^{-k}','\phi^{-(k-2)}'}, ...
 grid on;
 
 sgtitle('Three-Distance Theorem for \phi — combinatorial proof summary', 'FontSize', 13);
-saveas(gcf, 'three_distance_weyl.png');
-fprintf('\nFigure saved: three_distance_weyl.png\n');
+exportgraphics(gcf, 'three_distance_weyl.png', 'Resolution', 150);
+fprintf('\nFigure saved: three_distance_weyl.png  (in %s)\n', pwd);

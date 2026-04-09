@@ -92,8 +92,8 @@ grid on;
 
 sgtitle('Sturmian density convergence — numerical verification of Weyl equidistribution', ...
         'FontSize', 13);
-saveas(gcf, 'weyl_convergence.png');
-fprintf('\nFigure saved: weyl_convergence.png\n');
+exportgraphics(gcf, 'weyl_convergence.png', 'Resolution', 150);
+fprintf('\nFigure saved: weyl_convergence.png  (in %s)\n', pwd);
 
 %% Three-Distance Theorem verification
 % For phi, gaps between {phi*n} should take exactly 2 distinct values.
