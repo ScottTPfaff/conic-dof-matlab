@@ -141,7 +141,7 @@ for idx = 1:numel(Ns_err)
     d = floor(phi*(2:N+1)') - floor(phi*(1:N)');
     C_vals(idx) = abs(sum(d==1)/N - phi_inv2) * N;
 end
-semilogx(Ns_err, C_vals, 'm-', 'LineWidth', 1.5); hold on;
+semilogx(Ns_err, C_vals, 'c-', 'LineWidth', 1.5); hold on;
 yline(2, 'k--', 'LineWidth', 1.5, 'Label', 'C = 2 bound');
 xlabel('N'); ylabel('C = |\rho_1(N) - 1/\phi^2| \cdot N');
 title('Error bound: C < 2 for all N');
