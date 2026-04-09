@@ -51,38 +51,48 @@ for N = checkpoints
 end
 
 %% Convergence plot
-N_plot   = 1000:1000:N_max;
-rho1_run = cumsum(is_step_one(N_plot)) ./ (1:numel(N_plot))';
+% Vectorized running averages — no loop needed
+N_plot   = (1000:1000:N_max)';
+rho1_run = cumsum(is_step_one(1:1000:N_max)) ./ (1:numel(N_plot))';
+rho2_run = cumsum(is_step_two(1:1000:N_max)) ./ (1:numel(N_plot))';
 
-% Recompute properly as running average
-rho1_run = zeros(numel(N_plot), 1);
-rho2_run = zeros(numel(N_plot), 1);
-for k = 1:numel(N_plot)
-    N = N_plot(k);
-    rho1_run(k) = sum(is_step_one(1:N)) / N;
-    rho2_run(k) = sum(is_step_two(1:N)) / N;
-end
+% Correct running averages at every 1000-step checkpoint via cumsum on full array
+cs1 = cumsum(is_step_one);
+cs2 = cumsum(is_step_two);
+rho1_run = cs1(N_plot) ./ N_plot;
+rho2_run = cs2(N_plot) ./ N_plot;
 
 figure('Name', 'Weyl Equidistribution: Sturmian density convergence', ...
-       'Position', [100 100 900 500]);
+       'Position', [50 50 1300 440]);
 
-subplot(1,2,1);
-plot(N_plot, rho1_run, 'b-', 'LineWidth', 1.5); hold on;
-yline(phi_inv2, 'r--', 'LineWidth', 2, 'Label', '1/\phi^2 = 0.38197');
-xlabel('N'); ylabel('\rho_1(N)');
-title('Density of step-1: d_\phi(n)=1');
-grid on; legend({'Empirical \rho_1', 'Limit 1/\phi^2'}, 'Location', 'southeast');
+subplot(1,3,1);
+plot(N_plot/1e3, rho1_run, 'b-', 'LineWidth', 1.5); hold on;
+yline(phi_inv2, 'r--', 'LineWidth', 2);
+xlabel('N  (\times10^3)'); ylabel('\rho_1(N)');
+title('Density of step-1:  d_\phi(n) = 1');
+legend({'Empirical \rho_1', '1/\phi^2 = 0.38197'}, 'Location', 'southeast');
+grid on;
 
-subplot(1,2,2);
-plot(N_plot, rho2_run, 'm-', 'LineWidth', 1.5); hold on;
-yline(phi_inv, 'r--', 'LineWidth', 2, 'Label', '1/\phi = 0.61803');
-xlabel('N'); ylabel('\rho_2(N)');
-title('Density of step-2: d_\phi(n)=2');
-grid on; legend({'Empirical \rho_2', 'Limit 1/\phi'}, 'Location', 'southeast');
+subplot(1,3,2);
+plot(N_plot/1e3, rho2_run, 'm-', 'LineWidth', 1.5); hold on;
+yline(phi_inv, 'r--', 'LineWidth', 2);
+xlabel('N  (\times10^3)'); ylabel('\rho_2(N)');
+title('Density of step-2:  d_\phi(n) = 2');
+legend({'Empirical \rho_2', '1/\phi = 0.61803'}, 'Location', 'northeast');
+grid on;
 
-sgtitle('Sturmian density convergence — numerical verification of Weyl equidistribution');
-saveas(gcf, 'weyl_convergence.png');
-fprintf('\nFigure saved: weyl_convergence.png\n');
+subplot(1,3,3);
+err1_run = abs(rho1_run - phi_inv2);
+loglog(N_plot, err1_run, 'k-', 'LineWidth', 1.5); hold on;
+loglog(N_plot, 2./N_plot, 'r--', 'LineWidth', 1.5);
+xlabel('N'); ylabel('|\rho_1(N) - 1/\phi^2|');
+title('Error decay: O(1/N) bound');
+legend({'Empirical error', '2/N bound'}, 'Location', 'northeast');
+grid on;
+
+sgtitle('Sturmian density convergence — numerical verification of Weyl equidistribution', ...
+        'FontSize', 13);
+fprintf('\nFigure displayed.\n');
 
 %% Three-Distance Theorem verification
 % For phi, gaps between {phi*n} should take exactly 2 distinct values.
