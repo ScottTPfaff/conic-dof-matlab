@@ -138,9 +138,9 @@ for k = 3:min(14, numel(fibs))
     match_short = (n_short == fibs_full(k-1));
     match_long  = (n_long  == fibs_full(k-2));
 
+    if match_short && match_long; res = 'PASS'; else; res = 'FAIL'; end
     fprintf('  %-6d  %-6d  %-8d  %-10d  %-8d  %-10d  %s\n', ...
-        k, N, n_short, fibs_full(k-1), n_long, fibs_full(k-2), ...
-        string(match_short & match_long, ["PASS", "FAIL"]));
+        k, N, n_short, fibs_full(k-1), n_long, fibs_full(k-2), res);
 end
 
 %% PART 6: General N sandwich (error bound)
