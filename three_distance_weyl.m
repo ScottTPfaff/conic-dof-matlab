@@ -59,8 +59,8 @@ fprintf('\n');
 fprintf('PART 4: Pure combinatorial Lean proof path\n\n');
 fprintf('  1. Three-Distance: gaps take <= 3 distinct values (proven above)\n');
 fprintf('  2. At N=F_k: short=phi^{-k}, long=phi^{2-k}, by induction on Fibonacci word\n');
-fprintf('  3. #short = F_{k-1}, #long = F_{k-2}, total = F_k+1\n');
-fprintf('     => rho_short = F_{k-1}/(F_k+1)\n');
+fprintf('  3. #ones = F_{k-2}, #twos = F_{k-1}, total = F_k\n');
+fprintf('     => rho_1 = F_{k-2}/F_k\n');
 fprintf('  4. Fibonacci ratios: F_{k-1}/F_k --> 1/phi  (Mathlib: Nat.tendsto_fib_div_fib)\n');
 fprintf('     => rho_short --> 1/phi^2,  rho_long --> 1/phi\n');
 fprintf('  5. General N: sandwich F_k <= N < F_{k+1}\n');
@@ -68,21 +68,21 @@ fprintf('     => |rho_1(N) - 1/phi^2| <= 2/N\n\n');
 fprintf('  ZERO Stone-Weierstrass. ZERO measure theory.\n\n');
 
 %% PART 5: Verify #ones = F_{k-1}, #twos = F_{k-2} in first F_k Sturmian steps
-fprintf('PART 5: Fibonacci count identity  (#ones=F_{k-1}, #twos=F_{k-2})\n');
+fprintf('PART 5: Fibonacci count identity  (#ones=F_{k-2}, #twos=F_{k-1})\n');
 fb = zeros(1,20); fb(1)=1; fb(2)=1;
 for i=3:20; fb(i)=fb(i-1)+fb(i-2); end
 fprintf('  %-4s  %-6s  %-8s  %-10s  %-8s  %-10s  %s\n', ...
-    'k','F_k','#ones','F_{k-1}','#twos','F_{k-2}','');
+    'k','F_k','#ones','F_{k-2}','#twos','F_{k-1}','');
 fprintf('  %s\n', repmat('-',1,60));
 for k = 3:min(14,numel(fibs))
     N    = fibs(k);
     d    = floor(phi*(2:N+1)') - floor(phi*(1:N)');
     ns   = sum(d == 1);
     nl   = sum(d == 2);
-    ok   = (ns == fb(k-1)) && (nl == fb(k-2));
+    ok   = (ns == fb(k-2)) && (nl == fb(k-1));
     if ok; res='PASS'; else; res='FAIL'; end
     fprintf('  %-4d  %-6d  %-8d  %-10d  %-8d  %-10d  %s\n', ...
-        k, N, ns, fb(k-1), nl, fb(k-2), res);
+        k, N, ns, fb(k-2), nl, fb(k-1), res);
 end
 fprintf('\n');
 
