@@ -103,3 +103,70 @@ fprintf('All 6 parts confirm the Three-Distance combinatorial argument.\n');
 fprintf('Lean strategy: replace sorry at Sturmian.lean:316 with\n');
 fprintf('  induction on Fibonacci word structure + Nat.tendsto_fib_div_fib\n');
 fprintf('Mathlib lemmas needed: Nat.fib_add_two, floor_phi_gt_self, step_eq_one_iff\n');
+
+%% FIGURE: Three-panel convergence visualization
+figure('Name', 'Three-Distance Theorem: Combinatorial proof evidence', ...
+       'Position', [50 50 1200 420]);
+
+% --- Panel 1: rho_1 and rho_2 at Fibonacci N ---
+subplot(1,3,1);
+fb_plot = zeros(1,20); fb_plot(1)=1; fb_plot(2)=1;
+for i=3:20; fb_plot(i)=fb_plot(i-1)+fb_plot(i-2); end
+ks = 3:16;
+r1_fib = zeros(size(ks));
+r2_fib = zeros(size(ks));
+for idx = 1:numel(ks)
+    k  = ks(idx);
+    Nf = fb_plot(k);
+    d  = floor(phi*(2:Nf+1)') - floor(phi*(1:Nf)');
+    r1_fib(idx) = sum(d==1)/Nf;
+    r2_fib(idx) = sum(d==2)/Nf;
+end
+plot(ks, r1_fib, 'bo-', 'LineWidth', 1.5, 'MarkerSize', 6); hold on;
+plot(ks, r2_fib, 'rs-', 'LineWidth', 1.5, 'MarkerSize', 6);
+yline(phi_inv2, 'b--', 'LineWidth', 1.5);
+yline(phi_inv,  'r--', 'LineWidth', 1.5);
+xlabel('k  (N = F_k)'); ylabel('\rho(F_k)');
+title('\rho_1, \rho_2 at Fibonacci N');
+legend({'\rho_1 = F_{k-2}/F_k', '\rho_2 = F_{k-1}/F_k', ...
+        '1/\phi^2 = 0.382', '1/\phi = 0.618'}, 'Location', 'east', 'FontSize', 8);
+grid on;
+
+% --- Panel 2: Error bound C = |rho_1(N) - 1/phi^2| * N  (should stay < 2) ---
+subplot(1,3,2);
+Ns_err = round(logspace(2, 5, 60));
+C_vals = zeros(size(Ns_err));
+for idx = 1:numel(Ns_err)
+    N = Ns_err(idx);
+    d = floor(phi*(2:N+1)') - floor(phi*(1:N)');
+    C_vals(idx) = abs(sum(d==1)/N - phi_inv2) * N;
+end
+semilogx(Ns_err, C_vals, 'm-', 'LineWidth', 1.5); hold on;
+yline(2, 'k--', 'LineWidth', 1.5, 'Label', 'C = 2 bound');
+xlabel('N'); ylabel('C = |\rho_1(N) - 1/\phi^2| \cdot N');
+title('Error bound: C < 2 for all N');
+ylim([0 2.5]); grid on;
+
+% --- Panel 3: Gap lengths at Fibonacci N (short & long vs k) ---
+subplot(1,3,3);
+ks3 = 3:14;
+g_short = zeros(size(ks3));
+g_long  = zeros(size(ks3));
+for idx = 1:numel(ks3)
+    k  = ks3(idx);
+    Nf = fb_plot(k);
+    gaps = sort(uniquetol(diff(sort([0; mod(phi*(1:Nf)',1); 1])), 1e-8));
+    g_short(idx) = gaps(1);
+    g_long(idx)  = gaps(end);
+end
+semilogy(ks3, g_short, 'bo-', 'LineWidth', 1.5, 'MarkerSize', 6); hold on;
+semilogy(ks3, g_long,  'rs-', 'LineWidth', 1.5, 'MarkerSize', 6);
+semilogy(ks3, phi.^(-ks3),   'b--', 'LineWidth', 1.2);
+semilogy(ks3, phi.^(-(ks3-2)),'r--', 'LineWidth', 1.2);
+xlabel('k  (N = F_k)'); ylabel('Gap length (log scale)');
+title('Gap lengths vs k');
+legend({'short gap','long gap','\phi^{-k}','\phi^{-(k-2)}'}, ...
+       'Location', 'northeast', 'FontSize', 8);
+grid on;
+
+sgtitle('Three-Distance Theorem for \phi — combinatorial proof summary', 'FontSize', 13);
