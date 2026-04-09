@@ -37,18 +37,19 @@ for k = 3:min(14,numel(fibs))
 end
 fprintf('\n  PATTERN: short = phi^{-k},  long = phi^{-(k-2)},  ratio = phi^2\n\n');
 
-%% PART 3: Count short/long gaps using clustering (robust classification)
-fprintf('PART 3: Gap counts at Fibonacci N (using median threshold)\n');
+%% PART 3: Count d_phi(n)=1 and d_phi(n)=2 in first F_k steps
+% This is the RIGHT quantity for the Lean density proof.
+% d_phi(n) = floor(phi*(n+1)) - floor(phi*n) in {1,2}
+fprintf('PART 3: Sturmian step counts in first F_k terms\n');
 fprintf('  %-6s  %-6s  %-8s  %-8s  %-14s  %-14s  %-10s\n', ...
-    'k','N','#short','#long','rho_short','rho_long','err_rho1');
+    'k','N','#ones','#twos','rho_1','rho_2','err_rho1');
 fprintf('  %s\n', repmat('-',1,75));
 for k = 3:min(14,numel(fibs))
     N    = fibs(k);
-    gaps = diff(sort([0; mod(phi*(1:N)',1); 1]));
-    thr  = median(gaps);           % robust: short < median < long
-    ns   = sum(gaps < thr);
-    nl   = sum(gaps > thr);
-    rs   = ns/(N+1); rl = nl/(N+1);
+    d    = floor(phi*(2:N+1)') - floor(phi*(1:N)');  % d_phi(1..N)
+    ns   = sum(d == 1);
+    nl   = sum(d == 2);
+    rs   = ns/N; rl = nl/N;
     fprintf('  %-6d  %-6d  %-8d  %-8d  %-14.10f  %-14.10f  %-10.2e\n', ...
         k, N, ns, nl, rs, rl, abs(rs - phi_inv2));
 end
@@ -66,19 +67,18 @@ fprintf('  5. General N: sandwich F_k <= N < F_{k+1}\n');
 fprintf('     => |rho_1(N) - 1/phi^2| <= 2/N\n\n');
 fprintf('  ZERO Stone-Weierstrass. ZERO measure theory.\n\n');
 
-%% PART 5: Verify #short = F_{k-1}, #long = F_{k-2}
-fprintf('PART 5: Fibonacci count identity verification\n');
+%% PART 5: Verify #ones = F_{k-1}, #twos = F_{k-2} in first F_k Sturmian steps
+fprintf('PART 5: Fibonacci count identity  (#ones=F_{k-1}, #twos=F_{k-2})\n');
 fb = zeros(1,20); fb(1)=1; fb(2)=1;
 for i=3:20; fb(i)=fb(i-1)+fb(i-2); end
 fprintf('  %-4s  %-6s  %-8s  %-10s  %-8s  %-10s  %s\n', ...
-    'k','F_k','#short','F_{k-1}','#long','F_{k-2}','');
+    'k','F_k','#ones','F_{k-1}','#twos','F_{k-2}','');
 fprintf('  %s\n', repmat('-',1,60));
 for k = 3:min(14,numel(fibs))
     N    = fibs(k);
-    gaps = diff(sort([0; mod(phi*(1:N)',1); 1]));
-    thr  = median(gaps);
-    ns   = sum(gaps < thr);
-    nl   = sum(gaps > thr);
+    d    = floor(phi*(2:N+1)') - floor(phi*(1:N)');
+    ns   = sum(d == 1);
+    nl   = sum(d == 2);
     ok   = (ns == fb(k-1)) && (nl == fb(k-2));
     if ok; res='PASS'; else; res='FAIL'; end
     fprintf('  %-4d  %-6d  %-8d  %-10d  %-8d  %-10d  %s\n', ...
